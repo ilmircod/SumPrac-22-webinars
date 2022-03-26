@@ -1,0 +1,195 @@
+version: '3.3'
+
+services:
+  redis:
+    image: redislabs/rejson:2.0.6
+    restart: on-failure
+    ports:
+      - "6379:6379"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.31
+    restart: on-failure
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: xxxmate_app
+      RABBITMQ_DEFAULT_PASS: xxxmate_app
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: MINIOADMIN
+      MINIO_ROOT_PASSWORD: MINIOADMIN
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+
+  # ----------------------------------
+  # Postgres for Xxxmate App Backend
+  # ----------------------------------
+
+
+  xxxmate-app-backend-db:
+    image: postgres:13.4
+    restart: on-failure
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: xxxmate_app
+      POSTGRES_PASSWORD: xxxmate_app
+      POSTGRES_DB: xxxmate_app
+
+
+  # ----------------------------------
+  # Postgres for Xxxpatch Data Gateway
+  # ----------------------------------
+
+
+  xxxpatch-data-gateway-db:
+    image: postgres:13.4
+    restart: on-failure
+    volumes:
+      - data_gateway_postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: xxxpatch_data_gateway
+      POSTGRES_PASSWORD: xxxpatch_data_gateway
+      POSTGRES_DB: xxxpatch_data_gateway
+      TZ: GMT+3
+
+
+  # ----------------------------------
+  # Xxxmate App Backend
+  # ----------------------------------
+
+
+  xxxmate-app-backend-api:
+    image: xxx.registry:5050/xxxmate/backend/xxxmate-app-backend/python:develop # Image from Gitlab Registry
+    restart: on-failure
+    command:
+      - /bin/bash
+      - -c
+      - |
+        python manage.py makemigrations
+        python manage.py migrate
+        python manage.py collectstatic --no-input --clear
+        python manage.py shell -c "from core.models.user import User; User.objects.create_superuser('emulator', 'emulator@xxx.com', 'emulator'); User.objects.filter(username='emulator').update(phone_number='+79520121212')"
+        gunicorn xxxmate_app.wsgi:application --bind 0.0.0.0
+    environment:
+      DEBUG: 0
+      ENVIRONMENT: local
+      CELERY_BROKER: redis://redis:6379
+      SQL_HOST: xxxmate-app-backend-db
+      SQL_PORT: 5432
+      SQL_DATABASE: xxxmate_app
+      SQL_USER: xxxmate_app
+      SQL_PASSWORD: xxxmate_app
+      SECRET_KEY: xxx
+      AWS_ACCESS_KEY_ID: xxx
+      AWS_SECRET_ACCESS_KEY: xxx
+      AWS_STORAGE_BUCKET_NAME: xxx-xxxmate-app-staging
+      AWS_S3_REGION_NAME: eu-central-1
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ALLOWED_HOSTS: "*"
+      SENTRY_DSN: https://xxx@sentry.xxx.com/999
+      APNS_USE_SANDBOX: 1
+      CORS_ORIGIN_WHITELIST: "http://*"
+      EMAIL_HOST: smtp.xxx.com
+      EMAIL_HOST_PASSWORD: xxx
+      EMAIL_HOST_USER: site@xxxmate.com
+      TERASMS_LOGIN: xxx
+      TERASMS_PASSWORD: xxx
+      TERASMS_SENDER: xxx
+      JAEGER_ENABLED: 1
+      JAEGER_HOST: jaeger
+      JAEGER_PORT: 6831
+      APNS_TOPIC: com.xxx.XxxMate
+      LANDING_BASE_URL: https://xxxmate.xxx.one
+      APNS_CERTIFICATE: longlonglongAPNSsertificate
+    ports:
+      - "8000:8000"
+    depends_on:
+      - xxxmate-app-backend-db
+      - rabbitmq
+      - redis
+
+
+  # ----------------------------------
+  # Xxxpatch Data Gateway
+  # ----------------------------------
+
+
+  xxxpatch-data-gateway-api:
+    image: xxx.registry:5050/xxxmate/backend/xxxpatch-data-gateway/python:develop # Image from Gitlab Registry
+    restart: on-failure
+    command: python main.py
+    environment: # From Gitlab CI/CD variables
+      ENVIRONMENT: local
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SENTRY_DSN: https://ca93895cd9ad4fe9be8e0075262e0789@sentry.xxx.com/29
+      BACKEND_URL: http://xxxmate-app-backend-api:8000/api/v1/ # Host is service name
+      DATABASE_HOST: xxxpatch-data-gateway-db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: xxxpatch_data_gateway
+      DATABASE_USER: xxxpatch_data_gateway
+      DATABASE_PASSWORD: xxxpatch_data_gateway
+      AWS_ACCESS_KEY_ID: MINIOADMIN
+      AWS_SECRET_ACCESS_KEY: MINIOADMIN
+      AWS_S3_BUCKET_NAME: xxxmate
+      AWS_REGION_NAME: eu-central-1
+      AWS_S3_CUSTOM_DOMAIN: http://minio:9000
+      JAEGER_ENABLED: 1
+      JAEGER_HOST: jaeger
+      JAEGER_PORT: 6831
+    ports:
+      - "8001:80"
+    depends_on:
+      - xxxmate-app-backend-api
+      - xxxpatch-data-gateway-db
+      - redis
+
+
+  # ----------------------------------
+  # Xxxpatch Emulator
+  # ----------------------------------
+
+
+  xxxpatch-emulator:
+    build:
+      context: src
+      dockerfile: Dockerfile
+    command: python main.py
+    depends_on:
+      - xxxmate-app-backend-api
+      - xxxpatch-data-gateway-api
+      - jaeger
+    volumes:
+      - ./config.toml:/usr/src/config.toml
+
+volumes:
+  postgres_data:
+  data_gateway_postgres_data:
+  minio_data:
+    driver: local

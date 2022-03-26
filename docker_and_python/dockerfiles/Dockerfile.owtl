@@ -1,0 +1,34 @@
+FROM node:14
+
+RUN npm cache clean --force
+
+WORKDIR /home/app/web/
+COPY ./package.json /home/app/web/package.json
+
+RUN npm i --silent
+
+COPY ./assets /home/app/web/assets
+
+ARG ORIGIN
+ARG API_ORIGIN
+ARG CDN_URL
+ARG ENV
+ARG JIVO_URL_RU
+ARG JIVO_URL_EN
+ARG TENANT_PUBLIC_URL
+
+RUN touch /home/app/web/.env && \
+  echo "" >> /home/app/web/.env && \
+  echo ORIGIN = \"$ORIGIN\" >> /home/app/web/.env && \
+  echo API_ORIGIN = \"$API_ORIGIN\" >> /home/app/web/.env && \
+  echo JIVO_URL_RU = \"$JIVO_URL_RU\" >> /home/app/web/.env && \
+  echo JIVO_URL_EN = \"$JIVO_URL_EN\" >> /home/app/web/.env && \
+  echo CDN_URL = \"$CDN_URL\" >> /home/app/web/.env && \
+  echo ENV = \"$ENV\" >> /home/app/web/.env && \
+  echo TENANT_PUBLIC_URL = \"$TENANT_PUBLIC_URL\" >> /home/app/web/.env
+
+RUN sed -i "s+_CDN+${CDN_URL}+g" /home/app/web/assets/pug/consts.pug
+
+RUN npm run build --no-warnings --silent
+
+COPY ./move_build_to_volume.sh /home/app/web/move_build_to_volume.sh
