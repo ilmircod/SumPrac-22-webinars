@@ -8,6 +8,7 @@ import time
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+import uvicorn
 from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel
 from starlette.endpoints import WebSocketEndpoint
@@ -141,7 +142,12 @@ class Room:
     async def broadcast_message(self, user_id: str, msg: str):
         """Broadcast message to all connected users.
         """
-        self._user_meta[user_id].message_count += 1
+        user = self._user_meta.get(user_id)
+
+        if not user:
+            return
+
+        user.message_count += 1
         for websocket in self._users.values():
             await websocket.send_json(
                 {"type": "MESSAGE", "data": {"user_id": user_id, "msg": msg}}
@@ -331,3 +337,9 @@ class RoomLive(WebSocketEndpoint):
         if not isinstance(msg, str):
             raise ValueError(f"RoomLive.on_receive() passed unhandleable data: {msg}")
         await self.room.broadcast_message(self.user_id, msg)
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "app:app", host="0.0.0.0", port=8000, log_level=logging.INFO,
+    )

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "example-ws-service"
+name = "fastapi-websocket-tickets-auth"
 version = "0.1.0"
 description = ""
 authors = ["Ruslan Mamleev <mamleev.rus@gmail.com>"]
