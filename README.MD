@@ -5,3 +5,4 @@
 - [PubSub](03-pubsub/тезисы.MD)
 - [Websocket](04-websocket/тезисы.MD)
 - [Team](05-team/тезисы.MD)
+- [Kubernetes](06-k8s/тезисы.MD)
