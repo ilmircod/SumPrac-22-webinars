@@ -6,3 +6,4 @@
 - [Websocket](04-websocket/тезисы.MD)
 - [Team](05-team/тезисы.MD)
 - [Kubernetes](06-k8s/тезисы.MD)
+- [PlantUML Integration](07-plantuml-integration/тезисы.MD)
