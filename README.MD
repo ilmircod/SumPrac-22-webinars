@@ -7,3 +7,4 @@
 - [Team](05-team/тезисы.MD)
 - [Kubernetes](06-k8s/тезисы.MD)
 - [PlantUML Integration](07-plantuml-integration/тезисы.MD)
+- [Gitlab CI](08-gitlab-ci/тезисы.MD)
