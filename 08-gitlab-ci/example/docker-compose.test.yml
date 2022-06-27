@@ -1,0 +1,16 @@
+version: '3.2'
+
+services:
+  web:
+    build: src
+    command: python manage.py runserver
+    environment:
+      ENVIRONMENT: test
+      DATABASE: postgres
+      DB_HOST: db
+      CELERY_BROKER: redis://redis:6379
+      EMAIL_BACKEND: "django.core.mail.backends.console.EmailBackend"
+
+  redis:
+    restart: on-failure
+    image: redis:6.0.10

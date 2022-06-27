@@ -1,0 +1,73 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-03-01 12:10+0300\n"
+"PO-Revision-Date: 2021-03-01 12:16+0230\n"
+"Last-Translator: b'  <root@root.root>'\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Translated-Using: django-rosetta 0.9.5\n"
+
+#: models/goal.py:26
+msgid "Image"
+msgstr "Изображение"
+
+#: models/goal.py:38
+msgid "goal parties"
+msgstr "Пати"
+
+#: models/user.py:13
+msgid "email address"
+msgstr "Адрес email"
+
+#: services/auth.py:15
+msgid "Email has already been taken"
+msgstr "Этот email уже занят"
+
+#: services/email.py:12 services/email.py:16
+msgid "Almost done!"
+msgstr "Почти готово!"
+
+#: services/email.py:13
+msgid ""
+"To complete registration and confirm your email address, click on the button"
+" below"
+msgstr ""
+"Чтобы завершить регистрацию и подтвердить свой адрес электронной почты, "
+"нажмите кнопку ниже"
+
+#: services/email.py:14
+msgid "Confirm"
+msgstr "Подтвердить"
+
+#: templates/email/base.html:765
+msgid "Link"
+msgstr "Ссылка"
+
+#: templates/email/base.html:767
+msgid "One more link"
+msgstr "Еще одна ссылка"
+
+#: templates/email/base.html:769
+msgid "Link too"
+msgstr "Тоже ссылка"
+
+#: templates/email/base.html:774
+msgid "This email was sent automatically. Please don't answer it"
+msgstr ""
+"Это письмо было отправлено автоматически. Пожалуйста, не отвечайте на него"
+
+#: views/auth.py:25
+msgid "Invalid login or password"
+msgstr "Неправильный логин или пароль"

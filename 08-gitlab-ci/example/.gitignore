@@ -1,0 +1,12 @@
+.python-version
+.idea/
+__pycache__/
+mediafiles
+staticfiles
+.vscode/
+/src/.coverage
+/src/celerybeat-schedule.bak
+/src/celerybeat-schedule.dat
+/src/celerybeat-schedule.dir
+*.mo
+.env.local

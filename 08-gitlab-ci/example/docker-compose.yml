@@ -1,0 +1,22 @@
+version: '3.2'
+
+services:
+  db:
+    image: postgres:13
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: share_service
+      POSTGRES_DB: share_service
+      POSTGRES_PASSWORD: share_service
+
+  redis:
+    restart: on-failure
+    image: redis:6.0.10
+    ports:
+      - 6379:6379
+
+volumes:
+  postgres_data:
