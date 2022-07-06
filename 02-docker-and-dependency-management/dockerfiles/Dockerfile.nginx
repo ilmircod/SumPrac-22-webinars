@@ -1,3 +1,0 @@
-FROM valian/docker-nginx-auto-ssl
-
-COPY *.conf /etc/nginx/conf.d/
